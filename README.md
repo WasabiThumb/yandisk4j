@@ -19,6 +19,16 @@ dependencies {
 }
 ```
 
+#### Maven
+```xml
+<dependency>
+    <groupId>io.github.wasabithumb</groupId>
+    <artifactId>yandisk4j</artifactId>
+    <version>0.1.0</version>
+    <scope>compile</scope>
+</dependency>
+```
+
 ### Authenticating
 The Yandex Disk API is OAuth authenticated, which means it requires a unique OAuth token for each combination of
 application & user account. ``yandisk4j`` includes a helper for generating OAuth tokens. If you have your own method,
