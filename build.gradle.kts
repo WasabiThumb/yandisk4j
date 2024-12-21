@@ -1,9 +1,13 @@
 plugins {
     id("java-library")
+    id("maven-publish")
+    id("signing")
+    id("net.thebugmc.gradle.sonatype-central-portal-publisher") version "1.2.4"
 }
 
 group = "io.github.wasabithumb"
 version = "0.1.0"
+description = "Wrapper for the Yandex Disk cloud storage API "
 
 repositories {
     mavenCentral()
@@ -18,4 +22,35 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+centralPortal {
+    name = rootProject.name
+    jarTask = tasks.jar
+    sourcesJarTask = tasks.sourcesJar
+    javadocJarTask = tasks.javadocJar
+    pom {
+        name = "YanDisk4J"
+        description = project.description
+        url = "https://github.com/WasabiThumb/yandisk4j"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "wasabithumb"
+                email = "wasabithumbs@gmail.com"
+                organization = "Wasabi Codes"
+                organizationUrl = "https://wasabithumb.github.io/"
+                timezone = "-5"
+            }
+        }
+        scm {
+            connection = "scm:git:git://github.com/WasabiThumb/yandisk4j.git"
+            url = "https://github.com/WasabiThumb/yandisk4j"
+        }
+    }
 }
