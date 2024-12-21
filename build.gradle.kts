@@ -24,6 +24,29 @@ tasks.test {
     useJUnitPlatform()
 }
 
+val targetJavaVersion = 17
+java {
+    val javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.compileJava {
+    options.encoding = "UTF-8"
+}
+
+tasks.javadoc {
+    (options as CoreJavadocOptions)
+        .addBooleanOption("Xdoclint:none", true)
+}
+
 centralPortal {
     name = rootProject.name
     jarTask = tasks.jar
