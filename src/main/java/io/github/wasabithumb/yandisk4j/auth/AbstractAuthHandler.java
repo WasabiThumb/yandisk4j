@@ -2,6 +2,7 @@ package io.github.wasabithumb.yandisk4j.auth;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.github.wasabithumb.yandisk4j.auth.scope.AuthScope;
 import io.github.wasabithumb.yandisk4j.except.YanDiskAPIException;
 import io.github.wasabithumb.yandisk4j.except.YanDiskException;
 import io.github.wasabithumb.yandisk4j.except.YanDiskIOException;
@@ -21,8 +22,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Set;
 
 @ApiStatus.Internal
 public abstract class AbstractAuthHandler implements AuthHandler {
@@ -32,14 +33,14 @@ public abstract class AbstractAuthHandler implements AuthHandler {
 
     protected final String clientID;
     protected final String clientSecret;
-    protected final EnumSet<AuthScope> scopes;
+    protected final Set<AuthScope> scopes;
     protected final String deviceID;
     protected final String deviceName;
     protected final String state;
     public AbstractAuthHandler(
             @NotNull String clientID,
             @NotNull String clientSecret,
-            @NotNull EnumSet<AuthScope> scopes,
+            @NotNull Set<AuthScope> scopes,
             @Nullable String deviceID,
             @Nullable String deviceName,
             @Nullable String state

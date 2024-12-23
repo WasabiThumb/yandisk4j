@@ -5,18 +5,32 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A permission to grant via the OAuth flow.
  * Each permission must also be declared in the application settings.
+ * @deprecated Moved to {@link io.github.wasabithumb.yandisk4j.auth.scope.AuthScope}
  */
-public enum AuthScope {
-    /** Access information about Yandex Disk */
+@Deprecated
+public enum AuthScope implements io.github.wasabithumb.yandisk4j.auth.scope.AuthScope {
+    /**
+     * @deprecated Moved to {@link io.github.wasabithumb.yandisk4j.auth.scope.AuthScope#INFO}
+     */
+    @Deprecated
     INFO("cloud_api:disk.info"),
 
-    /** Read all of Yandex Disk */
+    /**
+     * @deprecated Moved to {@link io.github.wasabithumb.yandisk4j.auth.scope.AuthScope#READ}
+     */
+    @Deprecated
     READ("cloud_api:disk.read"),
 
-    /** Write anywhere on Yandex Disk */
+    /**
+     * @deprecated Moved to {@link io.github.wasabithumb.yandisk4j.auth.scope.AuthScope#WRITE}
+     */
+    @Deprecated
     WRITE("cloud_api:disk.write"),
 
-    /** Access the app folder on Yandex Disk */
+    /**
+     * @deprecated Moved to {@link io.github.wasabithumb.yandisk4j.auth.scope.AuthScope#APP_FOLDER}
+     */
+    @Deprecated
     APP_FOLDER("cloud_api:disk.app_folder");
 
     private final String token;
@@ -24,8 +38,14 @@ public enum AuthScope {
         this.token = token;
     }
 
+    @Override
     public @NotNull String token() {
         return this.token;
+    }
+
+    @Override
+    public boolean isNamed() {
+        return false;
     }
 
     @Override

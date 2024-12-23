@@ -49,7 +49,7 @@ final AuthHandler auth = YanDisk.auth(AuthScheme.SCREEN_CODE)
 auth.openURL();
 String code = promptUserForAuthCode();
 
-AuthResponse response = h.exchange(code);
+AuthResponse response = auth.exchange(code);
 System.out.println("OAuth token: " + response.accessToken());
 ```
 

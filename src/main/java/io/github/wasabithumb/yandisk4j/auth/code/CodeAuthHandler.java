@@ -2,12 +2,12 @@ package io.github.wasabithumb.yandisk4j.auth.code;
 
 import io.github.wasabithumb.yandisk4j.auth.AbstractAuthHandler;
 import io.github.wasabithumb.yandisk4j.auth.AuthScheme;
-import io.github.wasabithumb.yandisk4j.auth.AuthScope;
+import io.github.wasabithumb.yandisk4j.auth.scope.AuthScope;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 @ApiStatus.Internal
 public class CodeAuthHandler extends AbstractAuthHandler {
@@ -16,7 +16,7 @@ public class CodeAuthHandler extends AbstractAuthHandler {
     public CodeAuthHandler(
             @NotNull String clientID,
             @NotNull String clientSecret,
-            @NotNull EnumSet<AuthScope> scopes,
+            @NotNull Set<AuthScope> scopes,
             @Nullable String deviceID,
             @Nullable String deviceName,
             @Nullable String redirectURI,

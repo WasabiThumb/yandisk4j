@@ -1,18 +1,20 @@
 package io.github.wasabithumb.yandisk4j.auth;
 
+import io.github.wasabithumb.yandisk4j.auth.scope.AuthScope;
+import io.github.wasabithumb.yandisk4j.auth.scope.AuthScopeSet;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.Set;
 
 @ApiStatus.Internal
 public abstract class AbstractAuthHandlerBuilder implements AuthHandlerBuilder {
 
     protected String clientID = null;
     protected String clientSecret = null;
-    protected final EnumSet<AuthScope> scopes = EnumSet.noneOf(AuthScope.class);
+    protected final Set<AuthScope> scopes = new AuthScopeSet();
     protected String deviceID = null;
     protected String deviceName = null;
     protected String redirectURI = null;
@@ -20,7 +22,7 @@ public abstract class AbstractAuthHandlerBuilder implements AuthHandlerBuilder {
 
     //
 
-    protected final @NotNull EnumSet<AuthScope> assertScopes() throws IllegalStateException {
+    protected final @NotNull Set<AuthScope> assertScopes() throws IllegalStateException {
         if (this.scopes.isEmpty())
             throw new IllegalStateException("No scopes are set");
         return this.scopes;

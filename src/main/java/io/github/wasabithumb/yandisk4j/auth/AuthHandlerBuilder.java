@@ -1,5 +1,6 @@
 package io.github.wasabithumb.yandisk4j.auth;
 
+import io.github.wasabithumb.yandisk4j.auth.scope.AuthScope;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
