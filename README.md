@@ -8,14 +8,14 @@ less dependencies, better documentation and better syntax.
 #### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("io.github.wasabithumb:yandisk4j:0.1.0")
+    implementation("io.github.wasabithumb:yandisk4j:0.2.0")
 }
 ```
 
 #### Gradle (Groovy DSL)
 ```groovy
 dependencies {
-    implementation 'io.github.wasabithumb:yandisk4j:0.1.0'
+    implementation 'io.github.wasabithumb:yandisk4j:0.2.0'
 }
 ```
 
@@ -24,7 +24,7 @@ dependencies {
 <dependency>
     <groupId>io.github.wasabithumb</groupId>
     <artifactId>yandisk4j</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <scope>compile</scope>
 </dependency>
 ```
