@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import io.github.wasabithumb.yandisk4j.except.YanDiskException;
 import io.github.wasabithumb.yandisk4j.node.accessor.NodeAwaiter;
 import io.github.wasabithumb.yandisk4j.node.path.NodePath;
+import io.github.wasabithumb.yandisk4j.util.Watchable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +23,7 @@ import java.util.function.Consumer;
  * </p>
  */
 @ApiStatus.NonExtendable
-public sealed interface Operation permits TerminalOperation, LiveOperation {
+public sealed interface Operation extends Watchable<Operation> permits TerminalOperation, LiveOperation {
 
     Operation SUCCESS = new TerminalOperation(OperationStatus.SUCCESS);
 
@@ -40,9 +41,20 @@ public sealed interface Operation permits TerminalOperation, LiveOperation {
     @NotNull OperationStatus status() throws YanDiskException;
 
     /**
+     * Alias for {@code status().isComplete()}
+     * @see #status()
+     */
+    @Override
+    default boolean isDone() {
+        return this.status().isComplete();
+    }
+
+    /**
      * Adds a callback to execute when the status of this operation changes. Callbacks are cleared when the operation
      * completes.
+     * @see #status()
      */
+    @Override
     void watch(@NotNull Consumer<Operation> callback);
 
     /**

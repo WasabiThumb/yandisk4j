@@ -5,8 +5,11 @@ import io.github.wasabithumb.yandisk4j.except.YanDiskException;
 import io.github.wasabithumb.yandisk4j.except.YanDiskGatewayException;
 import io.github.wasabithumb.yandisk4j.except.YanDiskIOException;
 import io.github.wasabithumb.yandisk4j.except.YanDiskLimitException;
+import io.github.wasabithumb.yandisk4j.transfer.Transfer;
+import io.github.wasabithumb.yandisk4j.transfer.TransferService;
 import io.github.wasabithumb.yandisk4j.util.StreamUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -21,6 +24,8 @@ public final class NodeUploader extends AbstractNodeAccessor {
     public static @NotNull NodeUploader fromJson(@NotNull JsonObject json) {
         return AbstractNodeAccessor.fromJson(json, NodeUploader::new);
     }
+
+    private static final TransferService TRANSFER_SERVICE = new TransferService("Upload");
 
     public NodeUploader(@NotNull String href, @NotNull String method) {
         super(href, method);
@@ -39,7 +44,12 @@ public final class NodeUploader extends AbstractNodeAccessor {
         throw new YanDiskIOException(new IOException("Non-2XX HTTP response code " + response));
     }
 
-    public @NotNull OutputStream write() throws YanDiskException {
+    /**
+     * Starts uploading. Any data written to the stream before {@link OutputStream#close() close()} is sent
+     * as the file content. The call to {@code close()} itself may throw {@link YanDiskException} in addition to
+     * {@link IOException}.
+     */
+    public @NotNull OutputStream open() throws YanDiskException {
         HttpURLConnection c;
         OutputStream os;
         try {
@@ -53,37 +63,63 @@ public final class NodeUploader extends AbstractNodeAccessor {
             @Override
             public void close() throws IOException {
                 try {
-                    super.close();
-                } finally {
                     NodeUploader.this.unwrapResponseCode(c.getResponseCode());
+                } finally {
+                    super.close();
                 }
             }
         };
     }
 
     /**
-     * @see #write(File)
-     * @see #write(URL)
+     * Starts uploading. Any data written to the stream before {@link OutputStream#close() close()} is sent
+     * as the file content.
+     * @deprecated Moved to {@link #open()}
+     */
+    @Deprecated
+    public @NotNull OutputStream write() throws YanDiskException {
+        return this.open();
+    }
+
+    /**
+     * Uploads the content of an {@link InputStream}.
+     * @see #writeAsync(InputStream, long)
      */
     public void write(@NotNull InputStream content) throws YanDiskException {
-        int response;
-        try {
-            HttpURLConnection c = this.openConnection();
-            c.setDoOutput(true);
-            try (OutputStream os = c.getOutputStream()) {
-                StreamUtil.pipe(content, os);
-            }
-            response = c.getResponseCode();
+        try (OutputStream os = this.open()) {
+            StreamUtil.pipe(content, os);
         } catch (IOException e) {
             throw new YanDiskIOException("Failed to upload file", e);
         }
-        this.unwrapResponseCode(response);
+    }
+
+    /**
+     * Uploads the content of an {@link InputStream} asynchronously.
+     * @param size Expected size of data to transfer, or -1.
+     * @see #write(InputStream)
+     */
+    public @NotNull Transfer writeAsync(
+            @NotNull InputStream content,
+            @Range(from = -1L, to = Long.MAX_VALUE) long size
+    ) {
+        return TRANSFER_SERVICE.submit(() -> content, this::open, size);
+    }
+
+    /**
+     * Uploads the content of an {@link InputStream} asynchronously. Alias for {@code writeAsync(content, -1L)}
+     * @see #writeAsync(InputStream, long) 
+     * @see #write(InputStream)
+     */
+    public @NotNull Transfer writeAsync(
+            @NotNull InputStream content
+    ) {
+        return TRANSFER_SERVICE.submit(() -> content, this::open);
     }
 
 
     /**
-     * @see #write(File)
-     * @see #write(InputStream)
+     * Uploads the content of a {@link URL}.
+     * @see #writeAsync(URL)
      */
     public void write(@NotNull URL content) throws YanDiskException {
         try {
@@ -96,10 +132,24 @@ public final class NodeUploader extends AbstractNodeAccessor {
         }
     }
 
+    /**
+     * Uploads the content of a {@link URL} asynchronously.
+     * @see #write(URL)
+     * @throws YanDiskIOException Initial call to {@link URL#openConnection()} failed
+     */
+    public @NotNull Transfer writeAsync(@NotNull URL content) throws YanDiskIOException {
+        try {
+            URLConnection c = content.openConnection();
+            return TRANSFER_SERVICE.submit(c::getInputStream, this::open, c.getContentLengthLong());
+        } catch (IOException e) {
+            throw new YanDiskIOException("Failed to open URL (" + content + ")", e);
+        }
+    }
+
 
     /**
-     * @see #write(InputStream)
-     * @see #write(URL)
+     * Uploads the content of a {@link File}.
+     * @see #writeAsync(File)
      */
     public void write(@NotNull File file) throws YanDiskException {
         try (FileInputStream fis = new FileInputStream(file)) {
@@ -107,6 +157,14 @@ public final class NodeUploader extends AbstractNodeAccessor {
         } catch (IOException e) {
             throw new YanDiskIOException("Failed to read file (" + file.getAbsolutePath() + ")", e);
         }
+    }
+
+    /**
+     * Uploads the content of a {@link File} asynchronously.
+     * @see #write(File)
+     */
+    public @NotNull Transfer writeAsync(@NotNull File file) {
+        return TRANSFER_SERVICE.submit(() -> new FileInputStream(file), this::open, file.length());
     }
 
 }

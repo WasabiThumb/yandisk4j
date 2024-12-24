@@ -4,6 +4,7 @@ import io.github.wasabithumb.yandisk4j.except.YanDiskException;
 import io.github.wasabithumb.yandisk4j.except.YanDiskIOException;
 import io.github.wasabithumb.yandisk4j.except.YanDiskOperationException;
 import io.github.wasabithumb.yandisk4j.node.accessor.NodeAwaiter;
+import io.github.wasabithumb.yandisk4j.util.IDVendor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,40 +16,6 @@ import java.util.function.Consumer;
 
 @ApiStatus.Internal
 final class LiveOperation implements Operation {
-
-    private static final int DAEMON_ID_REGISTRY_TARGET_CAPACITY = 64;
-    private static BitSet DAEMON_ID_REGISTRY = new BitSet(DAEMON_ID_REGISTRY_TARGET_CAPACITY);
-    private static int DAEMON_ID_REGISTRY_CAPACITY = DAEMON_ID_REGISTRY_TARGET_CAPACITY;
-
-    private static synchronized int acquireDaemonID() {
-        int index = DAEMON_ID_REGISTRY.nextClearBit(0);
-        if (index >= DAEMON_ID_REGISTRY_CAPACITY) {
-            int newCapacity = DAEMON_ID_REGISTRY_CAPACITY * 2;
-            BitSet cpy = new BitSet(newCapacity);
-            cpy.set(0, DAEMON_ID_REGISTRY_CAPACITY, true);
-            DAEMON_ID_REGISTRY = cpy;
-            DAEMON_ID_REGISTRY_CAPACITY = newCapacity;
-        }
-        DAEMON_ID_REGISTRY.set(index);
-        return index;
-    }
-
-    private static synchronized void freeDaemonID(int index) {
-        DAEMON_ID_REGISTRY.clear(index);
-        int nextClear;
-        if (DAEMON_ID_REGISTRY_CAPACITY > DAEMON_ID_REGISTRY_TARGET_CAPACITY &&
-                (nextClear = DAEMON_ID_REGISTRY.nextClearBit(0)) <= DAEMON_ID_REGISTRY_TARGET_CAPACITY
-        ) {
-            BitSet shrink = new BitSet(DAEMON_ID_REGISTRY_TARGET_CAPACITY);
-            for (int i=0; i < nextClear; i++) {
-                if (DAEMON_ID_REGISTRY.get(i)) shrink.set(i);
-            }
-            DAEMON_ID_REGISTRY = shrink;
-            DAEMON_ID_REGISTRY_CAPACITY = DAEMON_ID_REGISTRY_TARGET_CAPACITY;
-        }
-    }
-
-    //
 
     private final NodeAwaiter awaiter;
     private final StampedLock statusLock = new StampedLock();
@@ -139,12 +106,14 @@ final class LiveOperation implements Operation {
 
     private static final class Daemon extends Thread {
 
+        private static final IDVendor ID_VENDOR = new IDVendor();
+
         private final int id;
         private final LiveOperation operation;
         Daemon(@NotNull LiveOperation operation) {
-            this.id = LiveOperation.acquireDaemonID();
+            this.id = ID_VENDOR.next();
             this.operation = operation;
-            this.setName("YanDisk Operation Daemon #" + (id + 1));
+            this.setName("YanDisk Operation Daemon #" + (this.id + 1));
             this.setDaemon(true);
         }
 
@@ -163,7 +132,7 @@ final class LiveOperation implements Operation {
                 }
                 this.operation.updateStatus(status);
             } finally {
-                LiveOperation.freeDaemonID(this.id);
+                ID_VENDOR.free(this.id);
             }
         }
 
