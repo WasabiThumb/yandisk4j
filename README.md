@@ -72,19 +72,19 @@ YanDisk yd = YanDisk.yanDisk(() -> {
 ```java
 YanDisk yd = YanDisk.yanDisk(/* ... */);
 for (Node n : yd.listAll()) {
-        System.out.println("- " + n.path());
-        }
+    System.out.println("- " + n.path());
+}
 ```
 
 ### List files & directories
 ```java
 YanDisk yd = YanDisk.yanDisk(/* ... */);
 for (Node n : yd.list("disk:/path/to/dir")) {
-        if (n.isDirectory())
+    if (n.isDirectory())
         System.out.println("D > " + n.name());
-        if (n.isFile())
+    if (n.isFile())
         System.out.println("F > " + n.name());
-        }
+}
 ```
 
 ### Upload a file
@@ -101,11 +101,11 @@ nu.write(file);
 nu.write(new FileInputStream(file));
 
 // Sync (stream)
-        try (InputStream is = new FileInputStream(file);
-OutputStream os = nu.write()
+try (InputStream is = new FileInputStream(file);
+     OutputStream os = nu.write()
 ) {
-        // Pipe "is" to "os"
-        }
+    // Pipe "is" to "os"
+}
 
 // Async
 Transfer t = nu.writeAsync(file);
@@ -127,10 +127,10 @@ nd.read(file);
 
 // Sync (stream)
 try (InputStream is = nd.open();
-OutputStream os = new FileOutputStream(file)
+     OutputStream os = new FileOutputStream(file)
 ) {
-        // Pipe "is" to "os"
-        }
+    // Pipe "is" to "os"
+}
 
 // Async
 Transfer t = nd.readAsync(file);
@@ -175,14 +175,14 @@ Their differences are outlined further below.
 ```java
 Watchable<?> w = /* ... */;
 w.watch((Watchable<?> ignored) -> {
-        // Watchable has changed
-        if (w.hasProgress()) {
-double progress = w.progress();
+    // Watchable has changed
+    if (w.hasProgress()) {
+        double progress = w.progress();
     }
-            if (w.isDone()) {
+    if (w.isDone()) {
         // Done
-        }
-        });
+    }
+});
 ```
 
 ## Working with Operations
@@ -194,8 +194,8 @@ Operation op = /* ... */;
 op.setRefreshInterval(200L); // Refresh every 200ms
 // Operation daemon does not start until "status" or "watch" are called. At this point, no requests are scheduled.
 op.watch((Operation ignored) -> {
-        System.out.println(op.status()); // PENDING, SUCCESS or FAILED
-        });
+    System.out.println(op.status()); // PENDING, SUCCESS or FAILED
+});
 ```
 
 ## Working with Transfers
@@ -205,8 +205,8 @@ is to monitor a pipe and provide thread-safe access to the pipe's completion sta
 Transfer t = /* ... */;
 t.block(); // Wait for transfer to complete (isDone() becomes true)
 if (t.error() != null) {
-        // Broken pipe
-        }
+    // Broken pipe
+}
 ```
 ``Transfer`` is a [Watchable](#working-with-watchables) and can be listened for changes with ``watch(Consumer<Transfer>)``.
 
