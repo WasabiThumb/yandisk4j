@@ -21,7 +21,7 @@ class TransferServiceTest {
 
         Transfer t;
         t = service.submit(
-                () -> new ThrottleInputStream(new ByteArrayInputStream(sentinel), 200L),
+                () -> new ThrottledInputStream(new ByteArrayInputStream(sentinel), 8L),
                 () -> dest,
                 sentinel.length
         );
@@ -50,36 +50,44 @@ class TransferServiceTest {
 
     //
 
-    private static class ThrottleInputStream extends InputStream {
+    private static class ThrottledInputStream extends InputStream {
 
         private final InputStream in;
-        private final long usPerByte;
+        private final long nsPerByte;
         private long timestamp;
         private long carry;
-        ThrottleInputStream(InputStream in, long speed) {
+        ThrottledInputStream(InputStream in, long kbps) {
             this.in = in;
-            this.usPerByte = Math.floorDiv(1000L, speed);
+            this.nsPerByte = Math.floorDiv(1000000L, kbps);
             this.timestamp = System.nanoTime();
             this.carry = 0;
         }
 
         private long allowed() {
             long now = System.nanoTime();
-            long elapsed = Math.floorDiv(now - this.timestamp, 1000L);
-            if (elapsed < this.usPerByte) {
+            long elapsed = now - this.timestamp;
+            if (elapsed < this.nsPerByte) {
+                long wait = this.nsPerByte - elapsed;
                 try {
-                    TimeUnit.MICROSECONDS.sleep(this.usPerByte - elapsed);
+                    TimeUnit.NANOSECONDS.sleep(wait);
                 } catch (InterruptedException ignored) { }
-                this.timestamp = System.nanoTime();
+                this.timestamp = now + wait;
                 return this.carry + 1L;
             } else {
                 this.timestamp = now;
-                return this.carry + Math.floorDiv(elapsed, this.usPerByte);
+                return this.carry + Math.floorDiv(elapsed, this.nsPerByte);
             }
         }
 
         @Override
-        public synchronized int read() throws IOException {
+        public int available() throws IOException {
+            int available = this.in.available();
+            if (available == 0) return 0;
+            return (int) Math.min(available, this.allowed());
+        }
+
+        @Override
+        public int read() throws IOException {
             long allowed = this.allowed();
             int ret = this.in.read();
             this.carry = allowed - 1L;
@@ -93,6 +101,11 @@ class TransferServiceTest {
             count = Math.min(count, this.in.read(b, off, count));
             this.carry = allowed - count;
             return count;
+        }
+
+        @Override
+        public void close() throws IOException {
+            this.in.close();
         }
 
     }
