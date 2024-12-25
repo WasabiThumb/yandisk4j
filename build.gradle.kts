@@ -6,22 +6,11 @@ plugins {
 }
 
 group = "io.github.wasabithumb"
-version = "0.2.0"
+version = "0.2.1"
 description = "Wrapper for the Yandex Disk cloud storage API "
 
 repositories {
     mavenCentral()
-}
-
-dependencies {
-    implementation("com.google.code.gson:gson:2.11.0")
-    compileOnly("org.jetbrains:annotations:26.0.1")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 val targetJavaVersion = 17
@@ -36,6 +25,22 @@ java {
 
     withSourcesJar()
     withJavadocJar()
+
+    registerFeature("nanohttpd") {
+        usingSourceSet(sourceSets.main.get())
+    }
+}
+
+dependencies {
+    implementation("com.google.code.gson:gson:2.11.0")
+    compileOnly("org.jetbrains:annotations:26.0.1")
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    "nanohttpdImplementation"("org.nanohttpd:nanohttpd:2.3.1")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.compileJava {

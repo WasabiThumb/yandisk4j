@@ -1,4 +1,4 @@
-package io.github.wasabithumb.yandisk4j.auth.screen;
+package io.github.wasabithumb.yandisk4j.auth.impl.screen;
 
 import io.github.wasabithumb.yandisk4j.auth.AbstractAuthHandlerBuilder;
 import io.github.wasabithumb.yandisk4j.auth.AuthHandler;

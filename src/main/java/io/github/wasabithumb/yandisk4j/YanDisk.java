@@ -1,8 +1,9 @@
 package io.github.wasabithumb.yandisk4j;
 
 import io.github.wasabithumb.yandisk4j.auth.*;
-import io.github.wasabithumb.yandisk4j.auth.code.CodeAuthHandlerBuilder;
-import io.github.wasabithumb.yandisk4j.auth.screen.ScreenCodeAuthHandlerBuilder;
+import io.github.wasabithumb.yandisk4j.auth.impl.code.CodeAuthHandlerBuilder;
+import io.github.wasabithumb.yandisk4j.auth.impl.local.LocalCodeAuthHandlerBuilder;
+import io.github.wasabithumb.yandisk4j.auth.impl.screen.ScreenCodeAuthHandlerBuilder;
 import io.github.wasabithumb.yandisk4j.except.YanDiskException;
 import io.github.wasabithumb.yandisk4j.node.Node;
 import io.github.wasabithumb.yandisk4j.node.accessor.NodeDownloader;
@@ -47,6 +48,7 @@ public final class YanDisk implements IYanDisk {
         return switch (scheme) {
             case SCREEN_CODE -> new ScreenCodeAuthHandlerBuilder();
             case CODE -> new CodeAuthHandlerBuilder();
+            case LOCAL_CODE -> new LocalCodeAuthHandlerBuilder();
         };
     }
 

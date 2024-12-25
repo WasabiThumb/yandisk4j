@@ -8,14 +8,14 @@ less dependencies, better documentation and better syntax.
 #### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("io.github.wasabithumb:yandisk4j:0.2.0")
+    implementation("io.github.wasabithumb:yandisk4j:0.2.1")
 }
 ```
 
 #### Gradle (Groovy DSL)
 ```groovy
 dependencies {
-    implementation 'io.github.wasabithumb:yandisk4j:0.2.0'
+    implementation 'io.github.wasabithumb:yandisk4j:0.2.1'
 }
 ```
 
@@ -24,7 +24,7 @@ dependencies {
 <dependency>
     <groupId>io.github.wasabithumb</groupId>
     <artifactId>yandisk4j</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -39,6 +39,7 @@ permission to use the ``cloud_api:disk.*`` scopes.
 ```java
 // CODE : Retrieve the authorization code from a redirect URL you control
 // SCREEN_CODE : Retrieve the authorization code from the end user
+// LOCAL_CODE : Automatically retrieve the authorization code from a temporary local HTTP server
 
 final AuthHandler auth = YanDisk.auth(AuthScheme.SCREEN_CODE)
         .clientID("YOUR_CLIENT_ID_HERE")
@@ -46,11 +47,33 @@ final AuthHandler auth = YanDisk.auth(AuthScheme.SCREEN_CODE)
         .scopes(AuthScope.INFO, AuthScope.READ /* etc */)
         .build();
 
+// Open URL in the system browser
 auth.openURL();
-String code = promptUserForAuthCode();
+
+String code;
+// CODE        : ¯\_(ツ)_/¯
+// SCREEN_CODE : code = promptUserForAuthCode();
+// LOCAL_CODE  : code = auth.awaitCode().code();
 
 AuthResponse response = auth.exchange(code);
 System.out.println("OAuth token: " + response.accessToken());
+```
+
+#### Note about ``LOCAL_CODE``
+The default redirect URL for ``LOCAL_CODE`` is ``http://127.0.0.1:8127/``. Make sure to add this to your application
+or specify a local redirect URL you control when building the ``AuthHandler``.
+
+The default HTTP server is [``com.sun.net.httpserver.HttpServer``](https://docs.oracle.com/javase/8/docs/jre/api/net/httpserver/spec/com/sun/net/httpserver/HttpServer.html).
+Due to the nature of ``com.sun.*`` packages, it's not a guarantee that your JRE will have it (though as of writing,
+Oracle & [OpenJDK](https://github.com/openjdk/jdk/blob/6c59185475eeca83153f085eba27cc0b3acf9bb4/src/jdk.httpserver/share/classes/com/sun/net/httpserver/HttpServer.java) both do). If this behavior is not acceptable, you can use
+[NanoHTTPD](https://github.com/NanoHttpd/nanohttpd) as a fallback provider.
+Example with Gradle:
+```kotlin
+implementation("io.github.wasabithumb:yandisk4j:0.2.1") {
+    capabilities {
+        requireCapability("io.github.wasabithumb:yandisk4j-nanohttpd")
+    }
+}
 ```
 
 ### Entry

@@ -1,4 +1,4 @@
-package io.github.wasabithumb.yandisk4j.auth.screen;
+package io.github.wasabithumb.yandisk4j.auth.impl.code;
 
 import io.github.wasabithumb.yandisk4j.auth.AbstractAuthHandler;
 import io.github.wasabithumb.yandisk4j.auth.AuthScheme;
@@ -10,29 +10,30 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 
 @ApiStatus.Internal
-public class ScreenCodeAuthHandler extends AbstractAuthHandler {
+class CodeAuthHandler extends AbstractAuthHandler {
 
-    static final String ADDRESS = "https://oauth.yandex.com/verification_code";
-
-    public ScreenCodeAuthHandler(
+    protected final String redirectURI;
+    public CodeAuthHandler(
             @NotNull String clientID,
             @NotNull String clientSecret,
             @NotNull Set<AuthScope> scopes,
             @Nullable String deviceID,
             @Nullable String deviceName,
+            @Nullable String redirectURI,
             @Nullable String state
     ) {
         super(clientID, clientSecret, scopes, deviceID, deviceName, state);
+        this.redirectURI = redirectURI;
     }
 
     @Override
     public @NotNull AuthScheme scheme() {
-        return AuthScheme.SCREEN_CODE;
+        return AuthScheme.CODE;
     }
 
     @Override
-    protected @NotNull String getRedirectURI() {
-        return ADDRESS;
+    protected @Nullable String getRedirectURI() {
+        return this.redirectURI;
     }
 
 }

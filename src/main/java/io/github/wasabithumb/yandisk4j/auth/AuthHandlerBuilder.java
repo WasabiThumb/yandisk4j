@@ -70,6 +70,28 @@ public interface AuthHandlerBuilder {
     @NotNull AuthHandlerBuilder redirectURI(@Nullable String uri) throws IllegalArgumentException;
 
     /**
+     * Sets the message to send to the user after successful authentication, if any.
+     * Currently only supported for {@link AuthScheme#LOCAL_CODE}.
+     * @since 0.2.1
+     * @see #errorMessage(String)
+     */
+    @Contract("_ -> this")
+    default @NotNull AuthHandlerBuilder successMessage(@NotNull String message) {
+        return this;
+    }
+
+    /**
+     * Sets the message to send to the user after unsuccessful authentication, if any.
+     * Currently only supported for {@link AuthScheme#LOCAL_CODE}.
+     * @since 0.2.1
+     * @see #successMessage(String)
+     */
+    @Contract("_ -> this")
+    default @NotNull AuthHandlerBuilder errorMessage(@NotNull String message) {
+        return this;
+    }
+
+    /**
      * The state string to pass through OAuth as-is.
      * @throws IllegalArgumentException The state string is too long (more than 1024 characters)
      */
