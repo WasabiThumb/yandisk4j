@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.wasabithumb"
-version = "0.3.0"
+version = "0.4.0"
 description = "Wrapper for the Yandex Disk cloud storage API"
 
 repositories {
