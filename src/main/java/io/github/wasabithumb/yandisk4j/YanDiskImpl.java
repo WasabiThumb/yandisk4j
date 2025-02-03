@@ -2,10 +2,7 @@ package io.github.wasabithumb.yandisk4j;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.github.wasabithumb.yandisk4j.except.YanDiskAPIException;
-import io.github.wasabithumb.yandisk4j.except.YanDiskException;
-import io.github.wasabithumb.yandisk4j.except.YanDiskIOException;
-import io.github.wasabithumb.yandisk4j.except.YanDiskOperationException;
+import io.github.wasabithumb.yandisk4j.except.*;
 import io.github.wasabithumb.yandisk4j.node.Node;
 import io.github.wasabithumb.yandisk4j.node.accessor.NodeDownloader;
 import io.github.wasabithumb.yandisk4j.node.accessor.NodeUploader;
@@ -62,14 +59,35 @@ final class YanDiskImpl implements IYanDisk {
         return this.open(endpoint, "POST");
     }
 
-    private @NotNull JsonObject readJSON(@NotNull HttpURLConnection c) throws IOException, YanDiskAPIException {
-        try (InputStream is = c.getInputStream();
-             InputStreamReader r = new InputStreamReader(is, StandardCharsets.UTF_8)
-        ) {
+    private @NotNull JsonObject readJSON(@NotNull HttpURLConnection c) throws IOException, YanDiskException {
+        InputStream is;
+        int responseCode = c.getResponseCode();
+        boolean isError;
+
+        if (responseCode >= 500) {
+            throw new YanDiskGatewayException(responseCode);
+        } else if (responseCode >= 400) {
+            is = c.getErrorStream();
+            if (is == null) throw newUnknownClientError(responseCode);
+            isError = true;
+        } else {
+            is = c.getInputStream();
+            isError = false;
+        }
+
+        try (is; InputStreamReader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             JsonObject ret = this.gson.fromJson(r, JsonObject.class);
             if (ret.has("error")) throw YanDiskAPIException.fromJSON(ret);
+            if (isError) throw newUnknownClientError(responseCode);
             return ret;
         }
+    }
+
+    private YanDiskIOException newUnknownClientError(int code) {
+        return new YanDiskIOException(
+                "API reported a client error but did not provide further information",
+                new IOException("Non-2XX response code " + code)
+        );
     }
 
     //
@@ -199,7 +217,7 @@ final class YanDiskImpl implements IYanDisk {
     }
 
     @Override
-    public void mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException {
+    public boolean mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException {
         try {
             HttpURLConnection connection = this.open(
                     "?path=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8),
@@ -209,9 +227,10 @@ final class YanDiskImpl implements IYanDisk {
         } catch (IOException e) {
             throw new YanDiskIOException("Failed to create directory @ " + path, e);
         } catch (YanDiskAPIException e) {
-            if (lazy && "DiskPathPointsToExistentDirectoryError".equals(e.errorCode())) return;
+            if (lazy && "DiskPathPointsToExistentDirectoryError".equals(e.errorCode())) return false;
             throw e;
         }
+        return true;
     }
 
 }

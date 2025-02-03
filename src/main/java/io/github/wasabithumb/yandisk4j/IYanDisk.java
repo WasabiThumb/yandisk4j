@@ -7,6 +7,7 @@ import io.github.wasabithumb.yandisk4j.node.accessor.NodeUploader;
 import io.github.wasabithumb.yandisk4j.node.path.NodePath;
 import io.github.wasabithumb.yandisk4j.operation.Operation;
 import io.github.wasabithumb.yandisk4j.util.PaginatedResult;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -294,8 +295,10 @@ public sealed interface IYanDisk permits YanDiskImpl, YanDisk {
      * Creates a folder.
      * @param path Path to the folder to create.
      * @param lazy If true, this method will not throw when the directory already exists.
+     * @return True if the directory was created
      */
-    void mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException;
+    @Contract("_, false -> true")
+    boolean mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException;
 
     /**
      * Creates a folder. Alias for {@code mkdir(path, false)}.
@@ -310,9 +313,11 @@ public sealed interface IYanDisk permits YanDiskImpl, YanDisk {
      * Creates a folder.
      * @param path Path to the folder to create.
      * @param lazy If true, this method will not throw when the directory already exists.
+     * @return True if the directory was created
      */
-    default void mkdir(@NotNull String path, boolean lazy) throws YanDiskException {
-        this.mkdir(NodePath.parse(path), lazy);
+    @Contract("_, false -> true")
+    default boolean mkdir(@NotNull String path, boolean lazy) throws YanDiskException {
+        return this.mkdir(NodePath.parse(path), lazy);
     }
 
     /**

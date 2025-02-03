@@ -119,8 +119,8 @@ public final class YanDisk implements IYanDisk {
     }
 
     @Override
-    public void mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException {
-        this.impl.mkdir(path, lazy);
+    public boolean mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException {
+        return this.impl.mkdir(path, lazy);
     }
 
 }
