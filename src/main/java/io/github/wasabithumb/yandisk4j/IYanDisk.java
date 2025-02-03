@@ -296,6 +296,7 @@ public sealed interface IYanDisk permits YanDiskImpl, YanDisk {
      * @param path Path to the folder to create.
      * @param lazy If true, this method will not throw when the directory already exists.
      * @return True if the directory was created
+     * @since 0.4.0
      */
     @Contract("_, false -> true")
     boolean mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException;
@@ -314,6 +315,7 @@ public sealed interface IYanDisk permits YanDiskImpl, YanDisk {
      * @param path Path to the folder to create.
      * @param lazy If true, this method will not throw when the directory already exists.
      * @return True if the directory was created
+     * @since 0.4.0
      */
     @Contract("_, false -> true")
     default boolean mkdir(@NotNull String path, boolean lazy) throws YanDiskException {
