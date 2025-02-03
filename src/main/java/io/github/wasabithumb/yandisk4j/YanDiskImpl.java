@@ -199,7 +199,7 @@ final class YanDiskImpl implements IYanDisk {
     }
 
     @Override
-    public void mkdir(@NotNull NodePath path) throws YanDiskException {
+    public void mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException {
         try {
             HttpURLConnection connection = this.open(
                     "?path=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8),
@@ -208,6 +208,9 @@ final class YanDiskImpl implements IYanDisk {
             this.readJSON(connection);
         } catch (IOException e) {
             throw new YanDiskIOException("Failed to create directory @ " + path, e);
+        } catch (YanDiskAPIException e) {
+            if (lazy && "DiskPathPointsToExistentDirectoryError".equals(e.errorCode())) return;
+            throw e;
         }
     }
 

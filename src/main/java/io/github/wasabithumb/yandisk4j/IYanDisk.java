@@ -293,12 +293,32 @@ public sealed interface IYanDisk permits YanDiskImpl, YanDisk {
     /**
      * Creates a folder.
      * @param path Path to the folder to create.
+     * @param lazy If true, this method will not throw when the directory already exists.
      */
-    void mkdir(@NotNull NodePath path) throws YanDiskException;
+    void mkdir(@NotNull NodePath path, boolean lazy) throws YanDiskException;
+
+    /**
+     * Creates a folder. Alias for {@code mkdir(path, false)}.
+     * @param path Path to the folder to create.
+     * @see #mkdir(NodePath, boolean)
+     */
+    default void mkdir(@NotNull NodePath path) throws YanDiskException {
+        this.mkdir(path, false);
+    }
 
     /**
      * Creates a folder.
      * @param path Path to the folder to create.
+     * @param lazy If true, this method will not throw when the directory already exists.
+     */
+    default void mkdir(@NotNull String path, boolean lazy) throws YanDiskException {
+        this.mkdir(NodePath.parse(path), lazy);
+    }
+
+    /**
+     * Creates a folder. Alias for {@code mkdir(path, false)}.
+     * @param path Path to the folder to create.
+     * @see #mkdir(String, boolean)
      */
     default void mkdir(@NotNull String path) throws YanDiskException {
         this.mkdir(NodePath.parse(path));
