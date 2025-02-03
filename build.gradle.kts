@@ -6,8 +6,8 @@ plugins {
 }
 
 group = "io.github.wasabithumb"
-version = "0.2.1"
-description = "Wrapper for the Yandex Disk cloud storage API "
+version = "0.2.2"
+description = "Wrapper for the Yandex Disk cloud storage API"
 
 repositories {
     mavenCentral()
