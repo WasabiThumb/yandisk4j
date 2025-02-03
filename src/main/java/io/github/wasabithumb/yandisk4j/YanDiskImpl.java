@@ -183,9 +183,9 @@ final class YanDiskImpl implements IYanDisk {
         int status;
         try {
             HttpURLConnection connection = this.open(
-                    "DELETE",
                     "?path=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8) +
-                            "&permanently=" + permanent
+                            "&permanently=" + permanent,
+                    "DELETE"
             );
             status = connection.getResponseCode();
             json = this.readJSON(connection);
@@ -202,8 +202,8 @@ final class YanDiskImpl implements IYanDisk {
     public void mkdir(@NotNull NodePath path) throws YanDiskException {
         try {
             HttpURLConnection connection = this.open(
-                    "PUT",
-                    "?path=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8)
+                    "?path=" + URLEncoder.encode(path.toString(), StandardCharsets.UTF_8),
+                    "PUT"
             );
             this.readJSON(connection);
         } catch (IOException e) {
